@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Time Zone Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABClJREFUWEe9V11oHFUUPufObtCkJm1TG2zrQ1toqT4oVKGCSB+KINQHwRcFQR9EqKCIL0IFrf0RfFERlOqDPohQQaE++JMHQR8UoYhYW4tNbKqmTXebNE2yu3PHc2Y3ye7O7M7sbhIPDMzMvfd895tzz/nuuUOYZ1u9erUKguA+Zr4fEW8FgFVE1AEAHUT0FwD8AQBnEPEUMx8fGxs7uXfv3nA+0+hqO3d1dXnFYnEbM78MALfMtS8iDhHRZ0T03sjIyPmrwZgTQE9Pz0oiehcRHzaZxcwQBFXrTAghENEVEWsA4JwQ4qVcLnd6IRA1AXR3d3tE9AkAPJY0qpQCrTUQEVj2lX2I6P4vhNiRy+WG5wOiKoCenp6NRPQlAKxIGtRaQ7FYBK11pb8KgNZaSYnEzGuZ+dlcLvdLVhCzAOzbt0/s2LFjABEfSRrTWkOhULACsEAiEGEYWiAhhGJm6O/vl4h4RwihP+7r6wuygJgFYNu2bR8g4rNJQ0EQwOTkpA1zrRYDKTc1EKKUcpRSf/b393eNjo7mswBYsLBr9erVdxPRcUS0aSZpIGaeiEDXakmZiECEYahDKBQvENEDw8PDv9YDsQBAd3f3GiI6gYhtSSMxA601hOHsGlMPQMzMQRDIXPiNiO4ZHh7+ox6IqgC01l8BwBNZAcTMk/tEIGTOxOvMPB4EQR4AvgWAR5l5MgmiqpC0tbU9xMyDWQEw8+Tz589fKpVKRUSsOsQQ0RFEvI+I1hFRXgjxNyL+BgA3AcBKRPxXKXWBiJ5n5sF6ICoA9u7d6+zevXuciFbUA8DMZ4vF4oZCodBORFYXJJtpmiaEGGPmFmb+DQDaAcBKt1JqnIh6+/r6LtYCUQHQ3d39CBF9XQ8AM58tFAobwjC8xsSnEYBYCKanp3+fnJy8LmFLMPNbQ0NDH9UCUQHQ1dW1xEQgU6FJGLgchuHGMAyvzQogEeaJIAiun56evj4BYrKtre3anTt3/lsNRBWBQUTcnAVAEARnp6amNjLztVkAxCCKxeKEUsq6KwbxztDQ0Ps1Adi0S0S/A8C6egCYeaxQKNwUhuF1WQHE+xeLxUtKqVZ7j4jOAMBtzPxfNRCVCDDzk0R0yGZzNQDMfG5iYuJmZr4+KwAhxD9EdKlYLN4Qj2fmJ4aGhg7XygEb4EOI+EI9AGEYnpuYmLiFmW+oB0ApNRYDiLJACHFICPFiPQAVK9i8efMyRDwLAEurlVsYhucnJiZuZeYbswIQQowrpf6dnp6+Me5PRD8y8+Z6VlAFQF9f3zVE9B0A3FkNADNfmJycvC0Mw5uyApBSjiul/pmamro57k9EPzDzXUNDQ5O1QMzSAiklHgaAhxMALjLz7UTUnhVAvPHU1NTtcX8i+h4A7q0HAGZVw87OTqfRaLQZXXcLES0FgGYhxAVmvgQAvzLzCSI6Pj4+fvLAgQNhFp3/H0vdj6TwkKxgAAAAAElFTkSuQmCC"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #1a1a1a;
+            display: flex;
+        }
+        #map-container {
+            width: 60%;
+            height: 100vh;
+        }
+        #right-panel {
+            width: 40%;
+            height: 100vh;
+            background-color: #1a1a1a;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        #time-display-container {
+            background: rgba(33, 33, 33, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            color: white;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        #converter-container {
+            background: rgba(33, 33, 33, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            color: white;
+        }
+        .cities-title {
+            font-size: 1.2rem;
+            color: #90EE90;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .search-container {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding: 0 1rem;
+            padding-right: 1.5rem;
+        }
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            padding-left: 2.5rem;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #90EE90;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #90EE90;
+            opacity: 0.8;
+        }
+        .cities-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            margin: 0 1rem;
+        }
+        .cities-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .cities-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .cities-list::-webkit-scrollbar-thumb {
+            background: rgba(144, 238, 144, 0.3);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .cities-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(144, 238, 144, 0.5);
+        }
+        .city-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .city-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .city-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .city-name {
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        .city-country {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .city-time {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #90EE90;
+        }
+        .time-display, .date-display, .timezone-display {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideIn 0.5s ease forwards;
+        }
+        .time-display {
+            font-size: 48px;
+            font-weight: 600;
+            color: #90EE90;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .date-display {
+            font-size: 18px;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 16px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            animation-delay: 0.1s;
+        }
+        .timezone-display {
+            font-size: 16px;
+            color: #cccccc;
+            text-align: center;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin: 0 10px;
+            animation-delay: 0.2s;
+        }
+        .no-location-text {
+            text-align: center;
+            color: #cccccc;
+            font-size: 18px;
+            margin-top: 2rem;
+        }
+        /* Custom marker style */
+        .custom-marker {
+            background-color: #1e90ff;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(30, 144, 255, 0.6);
+            animation: markerPulse 0.3s ease-out;
+        }
+        @keyframes markerPulse {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .marker-ring {
+            position: absolute;
+            border: 2px solid #1e90ff;
+            border-radius: 50%;
+            animation: ringExpand 0.6s ease-out;
+            pointer-events: none;
+        }
+        @keyframes ringExpand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.8;
+                margin: 6px;
+            }
+            100% {
+                width: 30px;
+                height: 30px;
+                opacity: 0;
+                margin: -9px;
+            }
+        }
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        /* Remove grid lines and other map elements */
+        .leaflet-grid-pane,
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #90EE90;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 99, 71, 0.9);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-toast.show {
+            opacity: 1;
+        }
+
+        #welcome-box {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(33, 33, 33, 0.95);
+            padding: 20px 40px 20px 20px;
+            border-radius: 10px;
+            color: white;
+            max-width: 300px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: welcomeFadeIn 0.6s ease forwards;
+            backdrop-filter: blur(12px);
+        }
+
+        @keyframes welcomeFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #welcome-box h3 {
+            color: #90EE90;
+            margin: 0 0 10px 0;
+        }
+
+        #welcome-box p {
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        #close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+
+        #close-btn:hover {
+            color: #90EE90;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="welcome-box">
+        <button id="close-btn" onclick="this.parentElement.remove()">×</button>
+        <h3>Welcome to World Time Map!</h3>
+        <p>Click anywhere on the map to see the local time, or use the search bar to find major cities.</p>
+    </div>
+    <div id="map-container">
+        <div id="map"></div>
+    </div>
+    <div id="right-panel">
+        <div id="time-display-container">
+            <div class="no-location-text">Click anywhere on the map to see the local time</div>
+        </div>
+        <div id="converter-container">
+            <div class="cities-title">Major Cities</div>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Search cities...">
+            </div>
+            <div class="cities-list">
+                <!-- Cities will be populated here -->
+            </div>
+        </div>
+    </div>
+    <div class="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="error-toast"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        function closeWelcomeBox() {
+            document.querySelector('.welcome-box').remove();
+        }
+        
+        // Initialize the map with optimized settings
+        var map = L.map('map', {
+            center: [20, 0],
+            zoom: 2,
+            zoomControl: false,
+            doubleClickZoom: false,
+            boxZoom: false,
+            keyboard: false,
+            tap: false,
+            maxBounds: [[-90, -180], [90, 180]],
+            worldCopyJump: false,
+            attributionControl: false,
+            preferCanvas: true,  // Use Canvas renderer for better performance
+            zoomSnap: 0.5,      // Smoother zooming
+            zoomDelta: 0.5,     // Smoother zooming
+            wheelDebounceTime: 40  // Debounce wheel events
+        });
+
+        // Set light blue background for water
+        document.querySelector('.leaflet-container').style.backgroundColor = '#66ccff';
+
+        // Load and style the GeoJSON with simplified options
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+            .then(response => response.json())
+            .then(data => {
+                // Simplify the GeoJSON to improve performance
+                L.geoJSON(data, {
+                    style: {
+                        fillColor: '#90EE90',
+                        fillOpacity: 1,
+                        color: '#228B22',
+                        weight: 1.5,  // Reduced border weight
+                        opacity: 1,
+                        smoothFactor: 2  // Simplify paths for better performance
+                    },
+                    interactive: false  // Disable interactions for better performance
+                }).addTo(map);
+            });
+
+        // Optimize marker creation
+        let currentMarker = null;
+        const markerIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div class="marker-ring"></div>',
+            iconSize: [12, 12],
+            iconAnchor: [6, 6]
+        });
+
+        // Debounce map click events
+        let clickTimeout;
+        map.on('click', function(e) {
+            if (clickTimeout) clearTimeout(clickTimeout);
+            clickTimeout = setTimeout(() => handleMapClick(e), 100);
+        });
+
+        function handleMapClick(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+            
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+            currentMarker = L.marker([lat, lng], {icon: markerIcon}).addTo(map);
+            
+            setTimeout(() => {
+                const oldRings = document.querySelectorAll('.marker-ring');
+                oldRings.forEach(ring => {
+                    if (ring.parentElement) {
+                        ring.remove();
+                    }
+                });
+            }, 600);
+            
+            const timeContainer = document.getElementById('time-display-container');
+            timeContainer.classList.add('updating');
+            
+            showLoading();
+            
+            fetch('/get_time?lat=' + lat + '&lng=' + lng)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to get timezone information');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const displayLocation = e.cityName ? `${e.cityName}, ${e.countryName}` : data.timezone;
+                    const content = `
+                        <div class="time-display">${data.time}</div>
+                        <div class="date-display">${data.date}</div>
+                        <div class="timezone-display">${displayLocation}</div>
+                    `;
+                    timeContainer.innerHTML = content;
+                })
+                .catch(error => {
+                    showError(error.message);
+                })
+                .finally(() => {
+                    hideLoading();
+                    timeContainer.classList.remove('updating');
+                });
+        }
+
+        // Major cities data
+        const majorCities = [
+            // Middle East
+            { name: 'Dubai', country: 'UAE', lat: 25.2048, lng: 55.2708, timezone: 'Asia/Dubai' },
+            { name: 'Abu Dhabi', country: 'UAE', lat: 24.4539, lng: 54.3773, timezone: 'Asia/Dubai' },
+            { name: 'Doha', country: 'Qatar', lat: 25.2867, lng: 51.5333, timezone: 'Asia/Qatar' },
+            { name: 'Riyadh', country: 'Saudi Arabia', lat: 24.7136, lng: 46.6753, timezone: 'Asia/Riyadh' },
+            { name: 'Jeddah', country: 'Saudi Arabia', lat: 21.5433, lng: 39.1728, timezone: 'Asia/Riyadh' },
+            { name: 'Mecca', country: 'Saudi Arabia', lat: 21.3891, lng: 39.8579, timezone: 'Asia/Riyadh' },
+            { name: 'Medina', country: 'Saudi Arabia', lat: 24.5247, lng: 39.5692, timezone: 'Asia/Riyadh' },
+            { name: 'Kuwait City', country: 'Kuwait', lat: 29.3759, lng: 47.9774, timezone: 'Asia/Kuwait' },
+            { name: 'Manama', country: 'Bahrain', lat: 26.2285, lng: 50.5860, timezone: 'Asia/Bahrain' },
+            { name: 'Muscat', country: 'Oman', lat: 23.5880, lng: 58.3829, timezone: 'Asia/Muscat' },
+            { name: 'Sana\'a', country: 'Yemen', lat: 15.3694, lng: 44.1910, timezone: 'Asia/Aden' },
+            { name: 'Aden', country: 'Yemen', lat: 12.7797, lng: 45.0095, timezone: 'Asia/Aden' },
+            { name: 'Baghdad', country: 'Iraq', lat: 33.3152, lng: 44.3661, timezone: 'Asia/Baghdad' },
+            { name: 'Tehran', country: 'Iran', lat: 35.6892, lng: 51.3890, timezone: 'Asia/Tehran' },
+            { name: 'Amman', country: 'Jordan', lat: 31.9454, lng: 35.9284, timezone: 'Asia/Amman' },
+            { name: 'Beirut', country: 'Lebanon', lat: 33.8938, lng: 35.5018, timezone: 'Asia/Beirut' },
+
+            // Rest of Asia
+            { name: 'Tokyo', country: 'Japan', lat: 35.6762, lng: 139.6503, timezone: 'Asia/Tokyo' },
+            { name: 'Osaka', country: 'Japan', lat: 34.6937, lng: 135.5023, timezone: 'Asia/Tokyo' },
+            { name: 'Sapporo', country: 'Japan', lat: 43.0618, lng: 141.3545, timezone: 'Asia/Tokyo' },
+            { name: 'Singapore', country: 'Singapore', lat: 1.3521, lng: 103.8198, timezone: 'Asia/Singapore' },
+            { name: 'Hong Kong', country: 'China', lat: 22.3193, lng: 114.1694, timezone: 'Asia/Hong_Kong' },
+            { name: 'Seoul', country: 'South Korea', lat: 37.5665, lng: 126.9780, timezone: 'Asia/Seoul' },
+            { name: 'Busan', country: 'South Korea', lat: 35.1796, lng: 129.0756, timezone: 'Asia/Seoul' },
+            { name: 'Mumbai', country: 'India', lat: 19.0760, lng: 72.8777, timezone: 'Asia/Kolkata' },
+            { name: 'Delhi', country: 'India', lat: 28.6139, lng: 77.2090, timezone: 'Asia/Kolkata' },
+            { name: 'Bangalore', country: 'India', lat: 12.9716, lng: 77.5946, timezone: 'Asia/Kolkata' },
+            { name: 'Chennai', country: 'India', lat: 13.0827, lng: 80.2707, timezone: 'Asia/Kolkata' },
+            { name: 'Kolkata', country: 'India', lat: 22.5726, lng: 88.3639, timezone: 'Asia/Kolkata' },
+            { name: 'Bangkok', country: 'Thailand', lat: 13.7563, lng: 100.5018, timezone: 'Asia/Bangkok' },
+            { name: 'Jakarta', country: 'Indonesia', lat: -6.2088, lng: 106.8456, timezone: 'Asia/Jakarta' },
+            { name: 'Kuala Lumpur', country: 'Malaysia', lat: 3.1390, lng: 101.6869, timezone: 'Asia/Kuala_Lumpur' },
+            { name: 'Manila', country: 'Philippines', lat: 14.5995, lng: 120.9842, timezone: 'Asia/Manila' },
+            { name: 'Taipei', country: 'Taiwan', lat: 25.0330, lng: 121.5654, timezone: 'Asia/Taipei' },
+            { name: 'Ho Chi Minh City', country: 'Vietnam', lat: 10.8231, lng: 106.6297, timezone: 'Asia/Ho_Chi_Minh' },
+            { name: 'Karachi', country: 'Pakistan', lat: 24.8607, lng: 67.0011, timezone: 'Asia/Karachi' },
+            { name: 'Dhaka', country: 'Bangladesh', lat: 23.8103, lng: 90.4125, timezone: 'Asia/Dhaka' },
+
+            // Europe
+            { name: 'London', country: 'United Kingdom', lat: 51.5074, lng: -0.1278, timezone: 'Europe/London' },
+            { name: 'Paris', country: 'France', lat: 48.8566, lng: 2.3522, timezone: 'Europe/Paris' },
+            { name: 'Berlin', country: 'Germany', lat: 52.5200, lng: 13.4050, timezone: 'Europe/Berlin' },
+            { name: 'Rome', country: 'Italy', lat: 41.9028, lng: 12.4964, timezone: 'Europe/Rome' },
+            { name: 'Madrid', country: 'Spain', lat: 40.4168, lng: -3.7038, timezone: 'Europe/Madrid' },
+            { name: 'Moscow', country: 'Russia', lat: 55.7558, lng: 37.6173, timezone: 'Europe/Moscow' },
+            { name: 'Istanbul', country: 'Turkey', lat: 41.0082, lng: 28.9784, timezone: 'Europe/Istanbul' },
+            { name: 'Amsterdam', country: 'Netherlands', lat: 52.3676, lng: 4.9041, timezone: 'Europe/Amsterdam' },
+            { name: 'Stockholm', country: 'Sweden', lat: 59.3293, lng: 18.0686, timezone: 'Europe/Stockholm' },
+            { name: 'Vienna', country: 'Austria', lat: 48.2082, lng: 16.3738, timezone: 'Europe/Vienna' },
+            { name: 'Brussels', country: 'Belgium', lat: 50.8503, lng: 4.3517, timezone: 'Europe/Brussels' },
+            { name: 'Warsaw', country: 'Poland', lat: 52.2297, lng: 21.0122, timezone: 'Europe/Warsaw' },
+            { name: 'Budapest', country: 'Hungary', lat: 47.4979, lng: 19.0402, timezone: 'Europe/Budapest' },
+            { name: 'Copenhagen', country: 'Denmark', lat: 55.6761, lng: 12.5683, timezone: 'Europe/Copenhagen' },
+            { name: 'Oslo', country: 'Norway', lat: 59.9139, lng: 10.7522, timezone: 'Europe/Oslo' },
+            { name: 'Dublin', country: 'Ireland', lat: 53.3498, lng: -6.2603, timezone: 'Europe/Dublin' },
+            { name: 'Athens', country: 'Greece', lat: 37.9838, lng: 23.7275, timezone: 'Europe/Athens' },
+            { name: 'Lisbon', country: 'Portugal', lat: 38.7223, lng: -9.1393, timezone: 'Europe/Lisbon' },
+
+            // Americas
+            { name: 'New York', country: 'United States', lat: 40.7128, lng: -74.0060, timezone: 'America/New_York' },
+            { name: 'Los Angeles', country: 'United States', lat: 34.0522, lng: -118.2437, timezone: 'America/Los_Angeles' },
+            { name: 'Chicago', country: 'United States', lat: 41.8781, lng: -87.6298, timezone: 'America/Chicago' },
+            { name: 'Houston', country: 'United States', lat: 29.7604, lng: -95.3698, timezone: 'America/Chicago' },
+            { name: 'Phoenix', country: 'United States', lat: 33.4484, lng: -112.0740, timezone: 'America/Phoenix' },
+            { name: 'Toronto', country: 'Canada', lat: 43.6532, lng: -79.3832, timezone: 'America/Toronto' },
+            { name: 'São Paulo', country: 'Brazil', lat: -23.5505, lng: -46.6333, timezone: 'America/Sao_Paulo' },
+            { name: 'Mexico City', country: 'Mexico', lat: 19.4326, lng: -99.1332, timezone: 'America/Mexico_City' },
+            { name: 'Vancouver', country: 'Canada', lat: 49.2827, lng: -123.1207, timezone: 'America/Vancouver' },
+            { name: 'Buenos Aires', country: 'Argentina', lat: -34.6037, lng: -58.3816, timezone: 'America/Argentina/Buenos_Aires' },
+            { name: 'Rio de Janeiro', country: 'Brazil', lat: -22.9068, lng: -43.1729, timezone: 'America/Sao_Paulo' },
+            { name: 'Santiago', country: 'Chile', lat: -33.4489, lng: -70.6693, timezone: 'America/Santiago' },
+            { name: 'Lima', country: 'Peru', lat: -12.0464, lng: -77.0428, timezone: 'America/Lima' },
+            { name: 'Bogotá', country: 'Colombia', lat: 4.7110, lng: -74.0721, timezone: 'America/Bogota' },
+            { name: 'Miami', country: 'United States', lat: 25.7617, lng: -80.1918, timezone: 'America/New_York' },
+            { name: 'San Francisco', country: 'United States', lat: 37.7749, lng: -122.4194, timezone: 'America/Los_Angeles' },
+            { name: 'Montreal', country: 'Canada', lat: 45.5017, lng: -73.5673, timezone: 'America/Toronto' },
+            { name: 'Calgary', country: 'Canada', lat: 51.0447, lng: -114.0719, timezone: 'America/Edmonton' },
+
+            // Oceania
+            { name: 'Sydney', country: 'Australia', lat: -33.8688, lng: 151.2093, timezone: 'Australia/Sydney' },
+            { name: 'Melbourne', country: 'Australia', lat: -37.8136, lng: 144.9631, timezone: 'Australia/Melbourne' },
+            { name: 'Brisbane', country: 'Australia', lat: -27.4705, lng: 153.0260, timezone: 'Australia/Brisbane' },
+            { name: 'Perth', country: 'Australia', lat: -31.9505, lng: 115.8605, timezone: 'Australia/Perth' },
+            { name: 'Auckland', country: 'New Zealand', lat: -36.8509, lng: 174.7645, timezone: 'Pacific/Auckland' },
+            { name: 'Wellington', country: 'New Zealand', lat: -41.2866, lng: 174.7756, timezone: 'Pacific/Auckland' },
+            { name: 'Christchurch', country: 'New Zealand', lat: -43.5320, lng: 172.6306, timezone: 'Pacific/Auckland' },
+
+            // Africa
+            { name: 'Cairo', country: 'Egypt', lat: 30.0444, lng: 31.2357, timezone: 'Africa/Cairo' },
+            { name: 'Cape Town', country: 'South Africa', lat: -33.9249, lng: 18.4241, timezone: 'Africa/Johannesburg' },
+            { name: 'Johannesburg', country: 'South Africa', lat: -26.2041, lng: 28.0473, timezone: 'Africa/Johannesburg' },
+            { name: 'Lagos', country: 'Nigeria', lat: 6.5244, lng: 3.3792, timezone: 'Africa/Lagos' },
+            { name: 'Nairobi', country: 'Kenya', lat: -1.2921, lng: 36.8219, timezone: 'Africa/Nairobi' },
+            { name: 'Casablanca', country: 'Morocco', lat: 33.5731, lng: -7.5898, timezone: 'Africa/Casablanca' },
+            { name: 'Addis Ababa', country: 'Ethiopia', lat: 9.0320, lng: 38.7483, timezone: 'Africa/Addis_Ababa' },
+            { name: 'Dar es Salaam', country: 'Tanzania', lat: -6.7924, lng: 39.2083, timezone: 'Africa/Dar_es_Salaam' },
+            { name: 'Accra', country: 'Ghana', lat: 5.6037, lng: -0.1870, timezone: 'Africa/Accra' },
+            { name: 'Algiers', country: 'Algeria', lat: 36.7538, lng: 3.0588, timezone: 'Africa/Algiers' }
+        ];
+
+        function updateCityTimes() {
+            const citiesList = document.querySelector('.cities-list');
+            const searchInput = document.querySelector('.search-input').value.toLowerCase();
+            
+            const filteredCities = majorCities.filter(city => 
+                city.name.toLowerCase().includes(searchInput) || 
+                city.country.toLowerCase().includes(searchInput)
+            );
+
+            citiesList.innerHTML = filteredCities.map(city => {
+                const time = new Date().toLocaleTimeString('en-US', {
+                    timeZone: city.timezone,
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+
+                return `
+                    <div class="city-item" onclick="selectCity(${city.lat}, ${city.lng})">
+                        <div class="city-info">
+                            <div class="city-name">${city.name}</div>
+                            <div class="city-country">${city.country}</div>
+                        </div>
+                        <div class="city-time">${time}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectCity(lat, lng) {
+            // Find the city that was clicked
+            const selectedCity = majorCities.find(city => city.lat === lat && city.lng === lng);
+            map.setView([lat, lng], 4, { animate: true });
+            
+            // Create a custom click event with the city info
+            const clickEvent = { 
+                latlng: L.latLng(lat, lng),
+                cityName: selectedCity.name,
+                countryName: selectedCity.country
+            };
+            map.fire('click', clickEvent);
+        }
+
+        // Update times every minute
+        updateCityTimes();
+        setInterval(updateCityTimes, 60000);
+
+        // Add search functionality
+        document.querySelector('.search-input').addEventListener('input', updateCityTimes);
+
+        // Force map to recalculate its size after layout changes
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 100);
+
+        // Add keyboard navigation for search results
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('keydown', function(e) {
+            const items = document.querySelectorAll('.city-item');
+            const current = document.querySelector('.city-item:hover');
+            let index = Array.from(items).indexOf(current);
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                index = (index + 1) % items.length;
+                items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                index = (index - 1 + items.length) % items.length;
+                items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (e.key === 'Enter' && current) {
+                current.click();
+            }
+        });
+
+        // Automatically focus search input when clicking converter container
+        document.getElementById('converter-container').addEventListener('click', function(e) {
+            if (e.target.classList.contains('search-input')) return;
+            searchInput.focus();
+        });
+    </script>
+</body>
+</html> 
