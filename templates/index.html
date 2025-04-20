@@ -378,10 +378,6 @@
     <div class="error-toast"></div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        function closeWelcomeBox() {
-            document.querySelector('.welcome-box').remove();
-        }
-        
         // Add loading and error handling functions
         function showLoading() {
             document.querySelector('.loading').classList.add('show');
@@ -400,6 +396,10 @@
             }, 3000);
         }
 
+        function closeWelcomeBox() {
+            document.querySelector('.welcome-box').remove();
+        }
+        
         // Initialize the map with optimized settings
         var map = L.map('map', {
             center: [20, 0],
