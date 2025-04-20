@@ -11,6 +11,9 @@ CORS(app)  # Enable CORS for all routes
 app.config['JSON_SORT_KEYS'] = False
 app.config['TEMPLATES_AUTO_RELOAD'] = False
 
+# Initialize TimezoneFinder once
+tf = TimezoneFinder()
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -26,9 +29,8 @@ def get_time():
         if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
             return jsonify({'error': 'Invalid coordinates'}), 400
 
-        # Find timezone
-        tf = TimezoneFinder()
-        timezone_str = tf.timezone_at(lat=lat, lng=lng)
+        # Find timezone using the correct method for version 5.2.0
+        timezone_str = tf.timezone_at(lng=lng, lat=lat)
         
         if not timezone_str:
             return jsonify({'error': 'Unable to determine timezone'}), 404
